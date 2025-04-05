@@ -1,9 +1,10 @@
 {
-  "/api/summarize/route": "app/api/summarize/route.js",
-  "/api/history/route": "app/api/history/route.js",
   "/api/history/[id]/route": "app/api/history/[id]/route.js",
-  "/page": "app/page.js",
+  "/api/history/route": "app/api/history/route.js",
+  "/_not-found/page": "app/_not-found/page.js",
+  "/api/summarize/route": "app/api/summarize/route.js",
   "/summary/[videoUrl]/page": "app/summary/[videoUrl]/page.js",
   "/history/page": "app/history/page.js",
+  "/page": "app/page.js",
   "/history/[id]/page": "app/history/[id]/page.js"
 }
