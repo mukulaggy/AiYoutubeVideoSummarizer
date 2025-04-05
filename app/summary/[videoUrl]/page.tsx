@@ -65,23 +65,21 @@ export default function SummaryPage({ params }: PageProps) {
   const { videoUrl } = use(params);
 
   const cleanContentForPdf = (content: string): string => {
-    // First preserve important structure
     let cleaned = content
-      .replace(/^#+\s+(.*)$/gm, "\n\n$1\n") // Convert headings to plain text with spacing
-      .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold
-      .replace(/\*(.*?)\*/g, "$1") // Remove italics
-      .replace(/`{3}[\s\S]*?`{3}/g, "") // Remove code blocks
-      .replace(/`(.*?)`/g, "$1") // Remove inline code
-      .replace(/\[(.*?)\]\(.*?\)/g, "$1"); // Remove links but keep text
+      .replace(/^#+\s+(.*)$/gm, "\n\n$1\n")
+      .replace(/\*\*(.*?)\*\*/g, "$1")
+      .replace(/\*(.*?)\*/g, "$1")
+      .replace(/`{3}[\s\S]*?`{3}/g, "")
+      .replace(/`(.*?)`/g, "$1")
+      .replace(/\[(.*?)\]\(.*?\)/g, "$1");
 
-    // Then remove emojis and special formatting
     cleaned = cleaned
       .replace(
         /[\uD800-\uDBFF][\uDC00-\uDFFF]|[\u2600-\u27BF]|[\uD83C][\uDF00-\uDFFF]|[\uD83D][\uDC00-\uDE4F]|[\uD83D][\uDE80-\uDEFF]/g,
         ""
-      ) // Remove emojis
-      .replace(/[^\x00-\x7F]/g, "") // Remove non-ASCII characters
-      .replace(/\n{3,}/g, "\n\n") // Normalize multiple newlines
+      )
+      .replace(/[^\x00-\x7F]/g, "")
+      .replace(/\n{3,}/g, "\n\n")
       .trim();
 
     return cleaned;
@@ -89,7 +87,6 @@ export default function SummaryPage({ params }: PageProps) {
 
   const downloadPdf = () => {
     try {
-      // Initialize PDF document with better defaults
       const doc = new jsPDF({
         orientation: "portrait",
         unit: "mm",
@@ -105,13 +102,13 @@ export default function SummaryPage({ params }: PageProps) {
       const pageWidth = doc.internal.pageSize.getWidth();
       const maxWidth = pageWidth - 2 * margin;
 
-      // Font settings
+      // Font settings - using helvetica as default
       doc.setFont("helvetica", "normal");
       doc.setTextColor(40, 40, 40);
 
       // Add title with improved formatting
       doc.setFontSize(20);
-      doc.setFont("helvetica", "bold"); // Fixed: using standard font
+      doc.setFont("helvetica", "bold");
       const title =
         summary.title || `${mode === "podcast" ? "Podcast" : "Video"} Summary`;
       const titleLines = doc.splitTextToSize(title, maxWidth);
@@ -129,7 +126,7 @@ export default function SummaryPage({ params }: PageProps) {
 
       // Add metadata with better visual separation
       doc.setFontSize(10);
-      doc.setFont(undefined, "normal");
+      doc.setFont("helvetica", "normal");
       doc.setTextColor(100, 100, 100);
 
       const metadata = [
@@ -157,7 +154,6 @@ export default function SummaryPage({ params }: PageProps) {
       doc.setTextColor(50, 50, 50);
 
       const processContent = (content: string) => {
-        // Split into logical sections
         const sections = content
           .split(/\n\s*\n/)
           .filter((s) => s.trim().length > 0);
@@ -169,7 +165,7 @@ export default function SummaryPage({ params }: PageProps) {
           // Handle headings
           if (section.startsWith("## ")) {
             doc.setFontSize(14);
-            doc.setFont(undefined, "bold");
+            doc.setFont("helvetica", "bold");
             const headingText = section.replace(/^#+\s*/, "");
             const lines = doc.splitTextToSize(headingText, maxWidth);
 
@@ -184,7 +180,7 @@ export default function SummaryPage({ params }: PageProps) {
             doc.text(lines, margin, yPos);
             yPos += lines.length * lineHeight + 4;
             doc.setFontSize(11);
-            doc.setFont(undefined, "normal");
+            doc.setFont("helvetica", "normal");
             return;
           }
 
@@ -197,9 +193,7 @@ export default function SummaryPage({ params }: PageProps) {
             const items = section.split("\n");
 
             items.forEach((item) => {
-              // Clean up bullet markers
               item = item.replace(/^[•\-]\s+/, "• ").replace(/^\d+\./, "•");
-
               const lines = doc.splitTextToSize(item, maxWidth - 5);
 
               if (
@@ -210,7 +204,6 @@ export default function SummaryPage({ params }: PageProps) {
                 yPos = margin;
               }
 
-              // Indent bullet points
               doc.text(lines, margin + 5, yPos);
               yPos += lines.length * lineHeight + 2;
             });
@@ -235,15 +228,14 @@ export default function SummaryPage({ params }: PageProps) {
         });
       };
 
-      // Clean content before processing
       const cleanContent = summary.content
-        .replace(/\*\*(.*?)\*\*/g, "$1") // Remove bold
-        .replace(/\*(.*?)\*/g, "$1") // Remove italic
-        .replace(/`{3}[\s\S]*?`{3}/g, "") // Remove code blocks
-        .replace(/`(.*?)`/g, "$1") // Remove inline code
-        .replace(/\[(.*?)\]\(.*?\)/g, "$1") // Remove links
-        .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, "") // Remove emojis
-        .replace(/\n{3,}/g, "\n\n"); // Normalize newlines
+        .replace(/\*\*(.*?)\*\*/g, "$1")
+        .replace(/\*(.*?)\*/g, "$1")
+        .replace(/`{3}[\s\S]*?`{3}/g, "")
+        .replace(/`(.*?)`/g, "$1")
+        .replace(/\[(.*?)\]\(.*?\)/g, "$1")
+        .replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, "")
+        .replace(/\n{3,}/g, "\n\n");
 
       processContent(cleanContent);
 
